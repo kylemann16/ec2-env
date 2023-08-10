@@ -1,14 +1,39 @@
 data aws_ssm_parameter linux_arm64 {
-    name = "aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-standard/ami-id"
+    name = "/aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
 }
 
 data aws_ssm_parameter linux_amd64 {
-    name = "aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-standard/ami-id"
+    name = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
 }
 
-# data aws_ssm_parameter windows {
-#     name = "aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-standard/ami-id"
-# }
+data aws_ssm_parameter windows {
+    name = "/aws/service/ami-windows-latest/Windows_Server-2016-English-Full-Base"
+}
+
+variable platform {
+    type = string
+    default = "linux/amd64"
+    description = "Platform for image."
+    validation {
+        condition = can(regex("^(win|linux/arm64|linux/amd64)$", var.platform))
+        error_message = "Available platform options: win, linux/arm64, linux/amd64"
+    }
+}
+
+locals {
+    linux_arm64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
+    linux_amd64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+    windows_path = "/aws/service/ami-windows-latest/Windows_Server-2016-English-Full-Base"
+    ssm_path = "${
+        var.platform == "linux/amd64" ? local.linux_arm64_path :
+        ( var.platform == "linux/arm64" ? local.linux_arm64_path :
+        ( var.platform == "windows" ? local.windows_path : ""))
+    }"
+}
+
+data aws_ssm_parameter ec2_ami {
+    name = local.ssm_path
+}
 
 resource random_string run_id {
     length = 5
