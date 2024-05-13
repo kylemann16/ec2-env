@@ -76,3 +76,7 @@ resource aws_instance instance {
 output ip_address {
     value = "ssh -i .secrets/ssh.pem ec2-user@${aws_instance.instance.public_ip}"
 }
+
+output instance_id {
+    value = "${aws_instance.instance.id}"
+}

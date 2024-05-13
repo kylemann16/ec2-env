@@ -33,4 +33,13 @@ echo -e "$DOCKER_SETTINGS" > /etc/sysconfig/docker
 
 service docker restart
 
+apt-get -y update
+apt-get install -y curl
+
+curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+sudo su ec2-user -c 'bash Miniforge3-Linux-x86_64.sh -b'
+
+su ec2-user -c '/home/ec2-user/miniforge3/bin/mamba init'
+su ec2-user -c 'source /home/ec2-user/.bashrc'
+
 --==MYBOUNDARY==--\

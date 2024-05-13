@@ -19,6 +19,10 @@ output connection {
     value = module.resources.ip_address
 }
 
+output instance_id {
+    value = module.resources.instance_id
+}
+
 variable platform {
     type = string
     default = "linux/amd64"

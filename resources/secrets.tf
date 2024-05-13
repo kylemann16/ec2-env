@@ -13,3 +13,15 @@ resource local_file ssh_pem {
     filename = "${path.module}/../.secrets/ssh.pem"
     file_permission = "400"
 }
+
+resource local_file ssh_config {
+    filename = "${path.module}/../.secrets/ssh_config"
+    content = <<T
+Host ${aws_instance.instance.public_ip}
+    hostname ${aws_instance.instance.public_ip}
+    User ec2-user
+    IdentityFile ${abspath("${path.module}/../.secrets/ssh.pem")}
+    IdentitiesOnly yes
+    SendEnv GITHUB_TOKEN
+T
+}
