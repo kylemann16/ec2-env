@@ -1,3 +1,11 @@
+locals {
+    user = "${
+        var.platform == "linux/amd64" ? "ec2-user" :
+        ( var.platform == "linux/arm64" ? "ec2-user" :
+        ( var.platform == "windows" ? "Administrator" : ""))
+    }"
+}
+
 resource tls_private_key rsa_key {
     algorithm = "RSA"
     rsa_bits  = 4096
@@ -19,7 +27,7 @@ resource local_file ssh_config {
     content = <<T
 Host ${aws_instance.instance.public_ip}
     hostname ${aws_instance.instance.public_ip}
-    User ec2-user
+    User ${local.user}
     IdentityFile ${abspath("${path.module}/../.secrets/ssh.pem")}
     IdentitiesOnly yes
     SendEnv GITHUB_TOKEN

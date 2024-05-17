@@ -25,10 +25,9 @@ output instance_id {
 
 variable platform {
     type = string
-    default = "linux/amd64"
     description = "Platform for image."
     validation {
-        condition = can(regex("^(win|linux/arm64|linux/amd64)$", var.platform))
-        error_message = "Available platform options: win, linux/arm64, linux/amd64"
+        condition = can(regex("^(windows|linux/arm64|linux/amd64)$", var.platform))
+        error_message = "Available platform options: windows, linux/arm64, linux/amd64"
     }
 }

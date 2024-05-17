@@ -7,7 +7,7 @@ data aws_ssm_parameter linux_amd64 {
 }
 
 data aws_ssm_parameter windows {
-    name = "/aws/service/ami-windows-latest/Windows_Server-2016-English-Full-Base"
+    name = "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized"
 }
 
 variable platform {
@@ -15,25 +15,30 @@ variable platform {
     default = "linux/amd64"
     description = "Platform for image."
     validation {
-        condition = can(regex("^(win|linux/arm64|linux/amd64)$", var.platform))
-        error_message = "Available platform options: win, linux/arm64, linux/amd64"
+        condition = can(regex("^(windows|linux/arm64|linux/amd64)$", var.platform))
+        error_message = "Available platform options: windows, linux/arm64, linux/amd64"
     }
 }
 
 locals {
-    linux_arm64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
-    linux_amd64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
-    windows_path = "/aws/service/ami-windows-latest/Windows_Server-2016-English-Full-Base"
-    ssm_path = "${
-        var.platform == "linux/amd64" ? local.linux_arm64_path :
-        ( var.platform == "linux/arm64" ? local.linux_arm64_path :
-        ( var.platform == "windows" ? local.windows_path : ""))
+    # linux_arm64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
+    # linux_amd64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+    # windows_path = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base"
+    ssm = "${
+        var.platform == "linux/amd64" ? data.aws_ssm_parameter.linux_amd64.value :
+        ( var.platform == "linux/arm64" ? data.aws_ssm_parameter.linux_arm64.value :
+        ( var.platform == "windows" ? data.aws_ssm_parameter.windows.value : ""))
+    }"
+    userdata_path = "${
+        var.platform == "linux/amd64" ? "${path.module}/userdata.sh" :
+        ( var.platform == "linux/arm64" ? "${path.module}/userdata.sh" :
+        ( var.platform == "windows" ? "${path.module}/userdata_win.ps1" : ""))
     }"
 }
 
-data aws_ssm_parameter ec2_ami {
-    name = local.ssm_path
-}
+# data aws_ssm_parameter ec2_ami {
+#     name = local.ssm_path
+# }
 
 resource random_string run_id {
     length = 5
@@ -54,27 +59,32 @@ provider aws {
     region = var.aws_region
 }
 
-data "aws_ssm_parameter" "ami" {
-  name = "/aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended"
-}
+# data "aws_ssm_parameter" "ami" {
+#   name = "${local.ssm_path}"
+# }
 
 resource aws_instance instance {
     instance_type = var.instance_type
     tags = {
         Name = "Intern_Data_Processor_${random_string.run_id.result}"
     }
-    user_data = filebase64("${path.module}/userdata.sh")
+    user_data = filebase64("${local.userdata_path}")
     subnet_id = aws_default_subnet.default_subnet.id
-    ami = jsondecode(data.aws_ssm_parameter.ami.value).image_id
+    ami = jsondecode(data.aws_ssm_parameter.windows.value).image_id
     key_name = aws_key_pair.ec2_key_pair.key_name
     security_groups = [ aws_security_group.allow_ssh.id ]
     instance_market_options {
         market_type = "spot"
     }
+    metadata_options {
+        instance_metadata_tags="enabled"
+        http_endpoint="enabled"
+        http_tokens="required"
+    }
 }
 
 output ip_address {
-    value = "ssh -i .secrets/ssh.pem ec2-user@${aws_instance.instance.public_ip}"
+    value = "ssh -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_ip}"
 }
 
 output instance_id {
