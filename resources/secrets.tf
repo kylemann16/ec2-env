@@ -1,7 +1,7 @@
 locals {
     user = "${
         var.platform == "linux/amd64" ? "ec2-user" :
-        ( var.platform == "linux/arm64" ? "ec2-user" :
+        ( var.platform == "linux/arm64" ? "ubuntu" :
         ( var.platform == "windows" ? "Administrator" : ""))
     }"
 }

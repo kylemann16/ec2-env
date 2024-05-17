@@ -3,7 +3,7 @@ data aws_ssm_parameter linux_arm64 {
 }
 
 data aws_ssm_parameter linux_amd64 {
-    name = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
+    name = "/aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended"
 }
 
 data aws_ssm_parameter windows {
@@ -21,13 +21,10 @@ variable platform {
 }
 
 locals {
-    # linux_arm64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/arm64/hvm/ebs-gp2/ami-id"
-    # linux_amd64_path = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
-    # windows_path = "/aws/service/ami-windows-latest/Windows_Server-2022-English-Full-Base"
-    ssm = "${
-        var.platform == "linux/amd64" ? data.aws_ssm_parameter.linux_amd64.value :
+    ami_id = "${
+        var.platform == "linux/amd64" ? jsondecode(data.aws_ssm_parameter.linux_amd64.value).image_id :
         ( var.platform == "linux/arm64" ? data.aws_ssm_parameter.linux_arm64.value :
-        ( var.platform == "windows" ? data.aws_ssm_parameter.windows.value : ""))
+        ( var.platform == "windows" ? jsondecode(data.aws_ssm_parameter.windows.value).image_id : ""))
     }"
     userdata_path = "${
         var.platform == "linux/amd64" ? "${path.module}/userdata.sh" :
@@ -35,10 +32,6 @@ locals {
         ( var.platform == "windows" ? "${path.module}/userdata_win.ps1" : ""))
     }"
 }
-
-# data aws_ssm_parameter ec2_ami {
-#     name = local.ssm_path
-# }
 
 resource random_string run_id {
     length = 5
@@ -59,18 +52,14 @@ provider aws {
     region = var.aws_region
 }
 
-# data "aws_ssm_parameter" "ami" {
-#   name = "${local.ssm_path}"
-# }
-
 resource aws_instance instance {
     instance_type = var.instance_type
     tags = {
-        Name = "Intern_Data_Processor_${random_string.run_id.result}"
+        Name = "Dev_Instance_${var.platform}"
     }
     user_data = filebase64("${local.userdata_path}")
     subnet_id = aws_default_subnet.default_subnet.id
-    ami = jsondecode(data.aws_ssm_parameter.windows.value).image_id
+    ami = local.ami_id
     key_name = aws_key_pair.ec2_key_pair.key_name
     security_groups = [ aws_security_group.allow_ssh.id ]
     instance_market_options {
@@ -89,4 +78,13 @@ output ip_address {
 
 output instance_id {
     value = "${aws_instance.instance.id}"
+}
+
+output ami_id {
+    sensitive = true
+    value = local.ami_id
+}
+
+output userdata_path {
+    value = local.userdata_path
 }

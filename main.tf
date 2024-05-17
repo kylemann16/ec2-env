@@ -23,6 +23,15 @@ output instance_id {
     value = module.resources.instance_id
 }
 
+output ami_id {
+    sensitive=true
+    value = module.resources.ami_id
+}
+
+output userdata_path {
+    value = module.resources.userdata_path
+}
+
 variable platform {
     type = string
     description = "Platform for image."
@@ -30,4 +39,5 @@ variable platform {
         condition = can(regex("^(windows|linux/arm64|linux/amd64)$", var.platform))
         error_message = "Available platform options: windows, linux/arm64, linux/amd64"
     }
+    default = "linux/amd64"
 }
