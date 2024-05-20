@@ -27,9 +27,9 @@ locals {
         ( var.platform == "windows" ? jsondecode(data.aws_ssm_parameter.windows.value).image_id : ""))
     }"
     userdata_path = "${
-        var.platform == "linux/amd64" ? "${path.module}/userdata.sh" :
-        ( var.platform == "linux/arm64" ? "${path.module}/userdata.sh" :
-        ( var.platform == "windows" ? "${path.module}/userdata_win.ps1" : ""))
+        var.platform == "linux/amd64" ? "${path.module}/scripts/userdata_ubuntu.sh" :
+        ( var.platform == "linux/arm64" ? "${path.module}/scripts/userdata_ubuntu.sh" :
+        ( var.platform == "windows" ? "${path.module}/scripts/userdata_win.ps1" : ""))
     }"
 }
 
