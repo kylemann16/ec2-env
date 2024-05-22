@@ -35,6 +35,8 @@ sudo su ec2-user -c 'bash Miniforge3-Linux-x86_64.sh -b'
 
 su ec2-user -c '/home/ec2-user/miniforge3/bin/mamba init'
 su ec2-user -c 'source /home/ec2-user/.bashrc'
+su ec2-user -c '/home/ec2-user/miniforge3/bin/mamba install git valgrind cmake compilers ninja gdb --yes'
+su ec2-user -c '/home/ec2-user/miniforge3/bin/mamba install pdal --only-deps --yes'
 
 echo 'AcceptEnv GITHUB_TOKEN' >> /etc/ssh/sshd_config
 service sshd restart
