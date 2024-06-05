@@ -30,13 +30,19 @@ service docker restart
 apt-get -y update
 apt-get install -y curl
 
-curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
-sudo su ec2-user -c 'bash Miniforge3-Linux-x86_64.sh -b'
+function user_run {
+    su ec2-user -c "${@}"
+}
 
-su ec2-user -c '/home/ec2-user/miniforge3/bin/mamba init'
-su ec2-user -c 'source /home/ec2-user/.bashrc'
-su ec2-user -c '/home/ec2-user/miniforge3/bin/mamba install git valgrind cmake compilers ninja gdb --yes'
-su ec2-user -c '/home/ec2-user/miniforge3/bin/mamba install pdal --only-deps --yes'
+function user_mamba {
+    user_run "/home/ec2-user/miniforge3/bin/mamba ${@}"
+}
+
+curl -L -O https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh
+user_run 'bash Miniforge3-Linux-x86_64.sh -b'
+
+user_run /home/ec2-user/miniforge3/bin/mamba init
+user_run source /home/ec2-user/.bashrc
 
 echo 'AcceptEnv GITHUB_TOKEN' >> /etc/ssh/sshd_config
 service sshd restart

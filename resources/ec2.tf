@@ -41,7 +41,7 @@ resource random_string run_id {
 //TODO make this variable depending on architecture
 variable instance_type {
     type = string
-    default = "c5.large"
+    default = "c5.xlarge"
 }
 
 variable aws_region {
