@@ -72,8 +72,12 @@ resource aws_instance instance {
     }
 }
 
-output ip_address {
-    value = "ssh -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_ip}"
+output connection_str {
+    value = "ssh -o StrictHostKeyChecking=no -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_ip}"
+}
+
+output ec2_public_ip {
+    value = "${local.user}@${aws_instance.instance.public_ip}"
 }
 
 output instance_id {
