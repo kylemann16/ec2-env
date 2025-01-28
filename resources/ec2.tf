@@ -38,7 +38,7 @@ resource random_string run_id {
     special = false
 }
 
-//TODO make this variable depending on architecture
+//TODO make this variable depending on architecture?
 variable instance_type {
     type = string
     default = "c5.xlarge"
@@ -62,22 +62,28 @@ resource aws_instance instance {
     ami = local.ami_id
     key_name = aws_key_pair.ec2_key_pair.key_name
     security_groups = [ aws_security_group.allow_ssh.id ]
-    instance_market_options {
-        market_type = "spot"
-    }
+
+    # only wait for password data if it's a windows instance
+    get_password_data = var.platform == "windows" ? true : false
+
+    ##### uncomment if you want a spot instance ####
+    # instance_market_options {
+    #     market_type = "spot"
+    # }
     metadata_options {
         instance_metadata_tags="enabled"
         http_endpoint="enabled"
         http_tokens="required"
+        http_put_response_hop_limit = 2
     }
 }
 
 output connection_str {
-    value = "ssh -o StrictHostKeyChecking=no -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_ip}"
+    value = var.platform == "windows" ? "ssh -o StrictHostKeyChecking=no -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_dns}" : "ssh -o StrictHostKeyChecking=no -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_ip}"
 }
 
 output ec2_public_ip {
-    value = "${local.user}@${aws_instance.instance.public_ip}"
+    value = "${local.user}@${aws_instance.instance.public_dns}"
 }
 
 output instance_id {

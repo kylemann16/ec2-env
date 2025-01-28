@@ -33,3 +33,12 @@ Host ${aws_instance.instance.public_ip}
     SendEnv GITHUB_TOKEN
 T
 }
+
+resource local_file rdp_config {
+    filename = "${path.module}/../.secrets/ec2_env.rdp"
+    content = <<T
+auto connect:i:1
+full address:s:${aws_instance.instance.public_dns}
+username:s:${aws_instance.instance.public_dns}\${local.user}
+T
+}
