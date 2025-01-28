@@ -1,3 +1,17 @@
+####### ENVIRONMENT ########
+terraform {
+    required_providers {
+        aws = {
+            source = "hashicorp/aws"
+            version = "~> 5.11.0"
+        }
+    }
+}
+
+provider aws {
+    region = var.aws_region
+}
+
 module resources {
     source = "./resources"
     instance_type = var.instance_type
@@ -5,6 +19,7 @@ module resources {
     platform = var.platform
 }
 
+####### VARIABLES ########
 variable aws_region {
     type = string
     default = "us-east-1"
@@ -15,6 +30,17 @@ variable instance_type {
     default = "c5d.4xlarge"
 }
 
+variable platform {
+    type = string
+    description = "Platform for image."
+    validation {
+        condition = can(regex("^(windows|linux/arm64|linux/amd64)$", var.platform))
+        error_message = "Available platform options: windows, linux/arm64, linux/amd64"
+    }
+    default = "linux/amd64"
+}
+
+####### OUTPUTS ########
 output connection {
     value = module.resources.connection_str
 }
@@ -34,14 +60,4 @@ output ami_id {
 
 output userdata_path {
     value = module.resources.userdata_path
-}
-
-variable platform {
-    type = string
-    description = "Platform for image."
-    validation {
-        condition = can(regex("^(windows|linux/arm64|linux/amd64)$", var.platform))
-        error_message = "Available platform options: windows, linux/arm64, linux/amd64"
-    }
-    default = "linux/amd64"
 }
