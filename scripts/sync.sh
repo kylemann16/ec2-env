@@ -29,4 +29,5 @@ ipstr="ec2_public_ip = "
 fullstr=$(conda run -n ec2-env terraform output | grep ec2_public_ip | tr -d '"')
 export ip=$(echo "${fullstr#"$ipstr"}")
 
-echo "rsync -chavzP -e \"ssh -i $pem_loc\" '$SRC' $ip:'$DST' "
+echo "rsync -chavzP -e 'ssh -i $pem_loc' $SRC $ip:$DST"
+rsync -chavzP -e "ssh -i $pem_loc" $SRC $ip:$DST

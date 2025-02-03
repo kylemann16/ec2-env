@@ -36,6 +36,8 @@ Get-ACL C:\ProgramData\ssh\ssh_host_rsa_key | Set-ACL $AuthorizedKeysPath
 Set-Service -Name ssh-agent -StartupType "Automatic"
 Restart-Service -Name ssh-agent
 
+Write-Host 'Installing micromamba'
+Invoke-Expression ((Invoke-WebRequest -Uri https://micro.mamba.pm/install.ps1 -UseBasicParsing).Content)
 # these logs will be stored in C:\ProgramData\Amazon\EC2-Windows\Launch\Log\UserdataExecution.log
 
 </powershell>

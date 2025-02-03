@@ -1,6 +1,6 @@
 locals {
     user = "${
-        var.platform == "linux/amd64" ? "ec2-user" :
+        var.platform == "linux/amd64" ? "ubuntu" :
         ( var.platform == "linux/arm64" ? "ubuntu" :
         ( var.platform == "windows" ? "Administrator" : ""))
     }"
@@ -35,9 +35,9 @@ T
 }
 
 resource local_file rdp_config {
+    count = var.platform == "windows" ? 1 : 0
     filename = "${path.module}/../.secrets/ec2_env.rdp"
     content = <<T
-auto connect:i:1
 full address:s:${aws_instance.instance.public_dns}
 username:s:${aws_instance.instance.public_dns}\${local.user}
 T

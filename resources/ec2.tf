@@ -3,7 +3,7 @@ data aws_ssm_parameter linux_arm64 {
 }
 
 data aws_ssm_parameter linux_amd64 {
-    name = "/aws/service/ecs/optimized-ami/amazon-linux-2/gpu/recommended"
+    name = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
 }
 
 data aws_ssm_parameter windows {
@@ -22,7 +22,7 @@ variable platform {
 
 locals {
     ami_id = "${
-        var.platform == "linux/amd64" ? jsondecode(data.aws_ssm_parameter.linux_amd64.value).image_id :
+        var.platform == "linux/amd64" ? data.aws_ssm_parameter.linux_amd64.value :
         ( var.platform == "linux/arm64" ? data.aws_ssm_parameter.linux_arm64.value :
         ( var.platform == "windows" ? jsondecode(data.aws_ssm_parameter.windows.value).image_id : ""))
     }"
@@ -83,7 +83,7 @@ output connection_str {
 }
 
 output ec2_public_ip {
-    value = "${local.user}@${aws_instance.instance.public_dns}"
+    value = var.platform == "windows" ? "${local.user}@${aws_instance.instance.public_dns}" : "${local.user}@${aws_instance.instance.public_ip}"
 }
 
 output instance_id {
