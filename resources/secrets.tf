@@ -4,6 +4,7 @@ locals {
         ( var.platform == "linux/arm64" ? "ubuntu" :
         ( var.platform == "windows" ? "Administrator" : ""))
     }"
+    pem_path = "${path.module}/../.secrets/${terraform.workspace}/ssh.pem"
 }
 
 resource tls_private_key rsa_key {
@@ -18,7 +19,7 @@ resource aws_key_pair ec2_key_pair {
 
 resource local_file ssh_pem {
     content = tls_private_key.rsa_key.private_key_pem
-    filename = "${path.module}/../.secrets/ssh.pem"
+    filename = local.pem_path
     file_permission = "400"
 }
 
@@ -28,7 +29,7 @@ resource local_file ssh_config {
 Host ${aws_instance.instance.public_ip}
     hostname ${aws_instance.instance.public_ip}
     User ${local.user}
-    IdentityFile ${abspath("${path.module}/../.secrets/ssh.pem")}
+    IdentityFile ${abspath("${local.pem_path}")}
     IdentitiesOnly yes
     SendEnv GITHUB_TOKEN
 T

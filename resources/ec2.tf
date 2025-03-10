@@ -67,9 +67,9 @@ resource aws_instance instance {
     get_password_data = var.platform == "windows" ? true : false
 
     ##### uncomment if you want a spot instance ####
-    # instance_market_options {
-    #     market_type = "spot"
-    # }
+    instance_market_options {
+        market_type = "spot"
+    }
     metadata_options {
         instance_metadata_tags="enabled"
         http_endpoint="enabled"
@@ -79,7 +79,7 @@ resource aws_instance instance {
 }
 
 output connection_str {
-    value = var.platform == "windows" ? "ssh -o StrictHostKeyChecking=no -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_dns}" : "ssh -o StrictHostKeyChecking=no -i .secrets/ssh.pem ${local.user}@${aws_instance.instance.public_ip}"
+    value = var.platform == "windows" ? "ssh -o StrictHostKeyChecking=no -i .secrets/${terraform.workspace}/ssh.pem ${local.user}@${aws_instance.instance.public_dns}" : "ssh -o StrictHostKeyChecking=no -i .secrets/${terraform.workspace}/ssh.pem ${local.user}@${aws_instance.instance.public_ip}"
 }
 
 output ec2_public_ip {

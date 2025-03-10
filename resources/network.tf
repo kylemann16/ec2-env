@@ -17,7 +17,6 @@ resource aws_default_subnet default_subnet {
 }
 
 resource aws_security_group allow_ssh {
-    name = "allow_ssh"
     vpc_id = aws_default_subnet.default_subnet.vpc_id
 
     ingress {
