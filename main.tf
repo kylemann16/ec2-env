@@ -17,6 +17,7 @@ module resources {
     instance_type = var.instance_type
     aws_region = var.aws_region
     platform = var.platform
+    permissions_path= var.permissions_path
 }
 
 ####### VARIABLES ########
@@ -38,6 +39,12 @@ variable platform {
         error_message = "Available platform options: windows, linux/arm64, linux/amd64"
     }
     default = "linux/amd64"
+}
+
+variable permissions_path {
+    type = string
+    description = "Path to JSON file with IAM permissions."
+    default = ""
 }
 
 ####### OUTPUTS ########

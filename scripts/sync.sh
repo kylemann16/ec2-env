@@ -23,11 +23,13 @@ fi
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-pem_loc="${SCRIPT_DIR}/../.secrets/ssh.pem"
+workspace=$(terraform workspace list | awk '{if ($2 != "") {print $2} }')
+pem_loc="${SCRIPT_DIR}/../.secrets/${workspace}/ssh.pem"
 
 ipstr="ec2_public_ip = "
 fullstr=$(conda run -n ec2-env terraform output | grep ec2_public_ip | tr -d '"')
 export ip=$(echo "${fullstr#"$ipstr"}")
 
-echo "rsync -chavzP -e 'ssh -i $pem_loc' $SRC $ip:$DST"
-rsync -chavzP -e "ssh -i $pem_loc" $SRC $ip:$DST
+rsync_cmd="rsync -chavzP -e 'ssh -i $pem_loc' $SRC $ip:$DST"
+echo $rsync_cmd
+# eval $rsync_cmd

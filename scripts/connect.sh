@@ -1,7 +1,8 @@
 #!/bin/bash
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-pem_loc="${SCRIPT_DIR}/../.secrets/ssh.pem"
+workspace=$(terraform workspace list | awk '{if ($2 != "") {print $2} }')
+pem_loc="${SCRIPT_DIR}/../.secrets/${workspace}/ssh.pem"
 
 ipstr="ec2_public_ip = "
 fullstr=$(cd ${SCRIPT_DIR}/../ && conda run -n ec2-env terraform output | grep ec2_public_ip | tr -d '"')

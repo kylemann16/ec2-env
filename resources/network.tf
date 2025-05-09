@@ -19,6 +19,7 @@ resource aws_default_subnet default_subnet {
 resource aws_security_group allow_ssh {
     vpc_id = aws_default_subnet.default_subnet.vpc_id
 
+    # ssh
     ingress {
         from_port = 22
         to_port = 22
@@ -26,6 +27,7 @@ resource aws_security_group allow_ssh {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
+    # rsync
     ingress {
         from_port = 3389
         to_port = 3389
@@ -33,6 +35,7 @@ resource aws_security_group allow_ssh {
         cidr_blocks = ["0.0.0.0/0"]
     }
 
+    #internet
     egress {
         from_port = 0
         to_port = 0
