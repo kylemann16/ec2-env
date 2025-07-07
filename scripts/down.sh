@@ -1,10 +1,30 @@
 #!/bin/bash
 
-# normalize operation location and conda env
-source ./start.sh
+cd "$(dirname "$0")"
+cd ../
 
-workspace=$(terraform workspace list | awk '{if($1=="*") print $2}')
-terraform destroy
+# normalize operation location and conda env
+
+######## select terraform workspace #########
+read -p "Terraform workspace? [default]: " workspace
+if [[ $workspace == "" ]]
+then
+    terraform workspace select default
+else
+    terraform workspace select $workspace
+fi
+
+##### select terraform variable file ######
+read -p "Variable file path? [None]: " var_file
+
+if [[ $var_file == "" ]]
+then
+    terraform destroy
+else
+    terraform destroy -var-file="${var_file}"
+fi
+
+##### Delete terraform workspace if not default #####
 
 read -p "remove workspace \"${workspace}\"? [y/N]: " remove
 if [[ $remove == [Yy]* ]]
@@ -12,7 +32,7 @@ then
     if [[ "${workspace}" != "default" ]]
     then
         terraform workspace select default
-        terraform workspace delete $workspace
+        terraform workspace delete --force $workspace
         secret_dir=$(ls .secrets/ | awk -v ws_dir=$workspace '{if($1==ws_dir) print ".secrets/" $1}')
         if [[ "$secret_dir" != "" ]]
         then
@@ -23,6 +43,6 @@ then
             fi
         fi
     else
-        echo "Cannot delete workspace ${workspace}. Exiting."
+        echo "Cannot delete default workspace. Exiting."
     fi
 fi

@@ -11,13 +11,17 @@ locals {
     azs = [ for x in data.aws_availability_zone.available : x.name ]
 }
 
-resource aws_default_subnet default_subnet {
-    availability_zone = local.azs[0]
+
+resource aws_default_subnet default_subnets {
+    for_each = toset(data.aws_availability_zones.available.names)
+    availability_zone = each.value
     map_public_ip_on_launch = true
 }
 
+resource aws_default_vpc default_vpc { }
+
 resource aws_security_group allow_ssh {
-    vpc_id = aws_default_subnet.default_subnet.vpc_id
+    vpc_id = aws_default_vpc.default_vpc.id
 
     # ssh
     ingress {

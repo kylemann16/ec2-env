@@ -1,14 +1,15 @@
 #!/bin/sh
 USER="ubuntu"
 # Mount SSD.
-# BIG=$(lsblk -b | grep nvme | awk '{print $4 " " $1}' | sort -k 1 -r -n | \
-#     head -n 1 | awk '{print $2}')
-# EXT="/dev/$BIG"
-# echo "Mounting $EXT"
-# mkfs -t xfs "$EXT"
-# mkdir -p /volume
-# mount "$EXT" /volume
-# chown -R $USER:users /volume
+BIG=$(lsblk -b | grep nvme | awk '{print $4 " " $1}' | sort -k 1 -r -n | \
+    head -n 1 | awk '{print $2}')
+EXT="/dev/$BIG"
+echo "Mounting $EXT"
+mkfs -t xfs "$EXT"
+mkdir -p /volume
+mount "$EXT" /volume
+chown -R $USER:users /volume
+# HOME="/volume"
 
 
 # read -r -d '' DOCKER_SETTINGS << EOM
@@ -33,6 +34,5 @@ USER="ubuntu"
 # }
 
 curl -Ls https://micro.mamba.pm/api/micromamba/linux-aarch64/latest | tar -xvj bin/micromamba
-su -H -u $USER -c 'micromamba shell init --shell bash --root-prefix=~/.local/share/mamba'
+su -u $USER -c 'micromamba shell init --shell bash --root-prefix=~/.local/share/mamba'
 source /home/$USER/.bashrc
-alias m=micromamba

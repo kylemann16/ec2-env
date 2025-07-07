@@ -18,12 +18,17 @@ module resources {
     aws_region = var.aws_region
     platform = var.platform
     permissions_path= var.permissions_path
+    availability_zone = var.az
 }
 
 ####### VARIABLES ########
 variable aws_region {
     type = string
-    default = "us-east-1"
+}
+
+variable az {
+    type = string
+    default = ""
 }
 
 variable instance_type {

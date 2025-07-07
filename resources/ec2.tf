@@ -28,7 +28,7 @@ locals {
     }"
     userdata_path = "${
         var.platform == "linux/amd64" ? "${path.module}/scripts/userdata_linux_amd64.sh" :
-        ( var.platform == "linux/arm64" ? "${path.module}/scripts/userdata_linux_ard64.sh" :
+        ( var.platform == "linux/arm64" ? "${path.module}/scripts/userdata_linux_arm64.sh" :
         ( var.platform == "windows" ? "${path.module}/scripts/userdata_win.ps1" : ""))
     }"
 }
@@ -50,6 +50,11 @@ variable aws_region {
 
 provider aws {
     region = var.aws_region
+}
+
+variable availability_zone {
+    type = string
+    default = ""
 }
 
 variable permissions_path {
@@ -91,24 +96,25 @@ resource aws_iam_instance_profile instance_profile {
 }
 
 resource aws_instance instance {
+    # availability_zone = var.availability_zone != "" ? var.availability_zone : local.azs[0]
     instance_type = var.instance_type
     tags = {
         Name = "Dev_Instance_${var.platform}"
     }
     user_data = filebase64("${local.userdata_path}")
-    subnet_id = aws_default_subnet.default_subnet.id
+    # subnet_id = aws_default_subnet.default_subnet.id
     ami = local.ami_id
     key_name = aws_key_pair.ec2_key_pair.key_name
-    security_groups = [ aws_security_group.allow_ssh.id ]
+    vpc_security_group_ids = [ aws_security_group.allow_ssh.id ]
     iam_instance_profile = var.permissions_path == "" ? null : aws_iam_instance_profile.instance_profile[0].name
 
     # only wait for password data if it's a windows instance
     get_password_data = var.platform == "windows" ? true : false
 
     ##### uncomment if you want a spot instance ####
-    # instance_market_options {
-    #     market_type = "spot"
-    # }
+    instance_market_options {
+        market_type = "spot"
+    }
     metadata_options {
         instance_metadata_tags="enabled"
         http_endpoint="enabled"

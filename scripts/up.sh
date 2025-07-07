@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# normalize operation location and conda env
-source ./start.sh
+cd "$(dirname "$0")"
+cd ../
 
 ######## select terraform workspace #########
 read -p "Terraform workspace? [default]: " workspace
@@ -22,7 +22,6 @@ fi
 read -p "Variable file path? [None]: " var_file
 
 # perform terraform operations
-cd ../
 if [[ $var_file == "" ]]
 then
     terraform apply

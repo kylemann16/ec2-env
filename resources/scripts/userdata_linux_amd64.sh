@@ -1,15 +1,15 @@
 #!/bin/sh
 USER="ubuntu"
-HOME="/home/$USER/"
 # Mount SSD.
-# BIG=$(lsblk -b | grep nvme | awk '{print $4 " " $1}' | sort -k 1 -r -n | \
-#     head -n 1 | awk '{print $2}')
-# EXT="/dev/$BIG"
-# echo "Mounting $EXT"
-# mkfs -t xfs "$EXT"
-# mkdir -p /volume
-# mount "$EXT" /volume
-# chown -R $USER:users /volume
+BIG=$(lsblk -b | grep nvme | awk '{print $4 " " $1}' | sort -k 1 -r -n | \
+    head -n 1 | awk '{print $2}')
+EXT="/dev/$BIG"
+echo "Mounting $EXT"
+mkfs -t xfs "$EXT"
+mkdir -p /volume
+mount "$EXT" /volume
+chown -R $USER:users /volume
+# HOME="/volume"
 
 
 # read -r -d '' DOCKER_SETTINGS << EOM
@@ -34,8 +34,5 @@ HOME="/home/$USER/"
 # }
 
 curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xvj bin/micromamba
-export MAMBA_ROOT_PREFIX=$HOME
-su -H -u $USER -c 'micromamba shell init --shell bash --root-prefix=~/.local/share/mamba'
+su -u $USER -c 'micromamba shell init --shell bash --root-prefix=~/.local/share/mamba'
 source /home/$USER/.bashrc
-micromamba install rsync --yes
-alias m=micromamba
