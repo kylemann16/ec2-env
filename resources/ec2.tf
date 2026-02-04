@@ -138,7 +138,6 @@ output instance_id {
 }
 
 output ami_id {
-    sensitive = true
     value = local.ami_id
 }
 

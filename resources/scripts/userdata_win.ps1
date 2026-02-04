@@ -37,7 +37,10 @@ Set-Service -Name ssh-agent -StartupType "Automatic"
 Restart-Service -Name ssh-agent
 
 Write-Host 'Installing micromamba'
-Invoke-Expression ((Invoke-WebRequest -Uri https://micro.mamba.pm/install.ps1 -UseBasicParsing).Content)
+mkdir $HOME/micromamba
+cd $HOME/micromamba
+Invoke-Webrequest -URI https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-win-64 -OutFile micromamba.exe
+.\micromamba.exe shell hook -s powershell | Out-String | Invoke-Expression
 # these logs will be stored in C:\ProgramData\Amazon\EC2-Windows\Launch\Log\UserdataExecution.log
 
 </powershell>

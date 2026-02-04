@@ -73,3 +73,7 @@ output ami_id {
 output userdata_path {
     value = module.resources.userdata_path
 }
+
+output aws_region {
+    value = var.aws_region
+}
