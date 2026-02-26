@@ -4,7 +4,10 @@ locals {
         ( var.platform == "linux/arm64" ? "ubuntu" :
         ( var.platform == "windows" ? "Administrator" : ""))
     }"
-    pem_path = "${path.module}/../.secrets/${terraform.workspace}/ssh.pem"
+    secret_path = "${path.module}/../.secrets/${terraform.workspace}"
+    pem_path = "${local.secret_path}/ssh.pem"
+    ssh_config_path = "${local.secret_path}/ssh_config"
+    rdb_path = "${local.secret_path}/ec2_env.rdp"
 }
 
 resource tls_private_key rsa_key {
@@ -24,7 +27,7 @@ resource local_file ssh_pem {
 }
 
 resource local_file ssh_config {
-    filename = "${path.module}/../.secrets/ssh_config"
+    filename = local.ssh_config_path
     content = <<T
 Host ${aws_instance.instance.public_ip}
     hostname ${aws_instance.instance.public_ip}
@@ -37,7 +40,7 @@ T
 
 resource local_file rdp_config {
     count = var.platform == "windows" ? 1 : 0
-    filename = "${path.module}/../.secrets/ec2_env.rdp"
+    filename = local.rdb_path
     content = <<T
 full address:s:${aws_instance.instance.public_dns}
 username:s:${aws_instance.instance.public_dns}\${local.user}

@@ -40,3 +40,9 @@ which will produce the output
 Username: {external_ip}.{ec2_region}.compute.amazonaws.com\Administrator
 Password: {password}
 ```
+
+##### Workspaces
+
+Terraform allows you to create multiple workspaces, meaning you can have multiple implementations of the same architecture. When you run the `up` or `down` scripts, you will be asked for the workspace you want (Defaults to `default`), and then a path to a terraform variables file.
+
+Make sure that when you're destroying your architecture that you have the correct workspace and variable file selected or things could get wonky.
