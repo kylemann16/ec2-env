@@ -17,10 +17,26 @@ Terraform workspace? [default]: my-workspace-name
 Variable file path? [None]: my-env.tfvars
 ```
 
-#####
+##### Connect
 
+To connect to your instance via SSH run. This will open a SSH terminal to either
+`bash` or `powershell`, depending on the system.
 
-Make it quick to start up an instance with correct settings that is on the platform I currently need to debug in.
+```
+./scripts/connect.sh
+```
 
-TODO
- - Allow users (me) to replace userdata script or concat their own onto the stock one
+To connect to a windows via remote desktop, you can find the file `ec2_env.rdb` in `.secrets/{workspace}/`. You can use this configuration to connect to a windows instance via RDP, or if you are on Mac and have the Windows App, you can just open this file and the Windows App will automatically connect you.
+
+To get the password for your windows instance, you can run
+
+```
+./scripts/win_pass.sh
+```
+
+which will produce the output
+
+```
+Username: {external_ip}.{ec2_region}.compute.amazonaws.com\Administrator
+Password: {password}
+```
