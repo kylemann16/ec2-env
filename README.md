@@ -12,9 +12,10 @@ source scripts/start.sh #create conda environment or select it if already made
 We can then startup the instance with `up.sh`, which will ask which workspace and which config file you would like to use.
 
 ```
+./scripts/up.sh # asks for variable file and workspace name as user inputs
+Terraform workspace? [default]: my-workspace-name
+Variable file path? [None]: my-env.tfvars
 ```
-
-
 
 #####
 
