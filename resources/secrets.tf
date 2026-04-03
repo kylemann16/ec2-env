@@ -2,7 +2,8 @@ locals {
     user = "${
         var.platform == "linux/amd64" ? "ubuntu" :
         ( var.platform == "linux/arm64" ? "ubuntu" :
-        ( var.platform == "windows" ? "Administrator" : ""))
+        ( var.platform == "amzn_linux/amd64" ? "ec2-user" :
+        ( var.platform == "windows" ? "Administrator" : "")))
     }"
     secret_path = "${path.module}/../.secrets/${terraform.workspace}"
     pem_path = "${local.secret_path}/ssh.pem"

@@ -40,8 +40,8 @@ variable platform {
     type = string
     description = "Platform for image."
     validation {
-        condition = can(regex("^(windows|linux/arm64|linux/amd64)$", var.platform))
-        error_message = "Available platform options: windows, linux/arm64, linux/amd64"
+        condition = can(regex("^(windows|amzn_linux/amd64|linux/arm64|linux/amd64)$", var.platform))
+        error_message = "Available platform options: windows, linux/arm64, linux/amd64, amzn_linux/amd64"
     }
     default = "linux/amd64"
 }

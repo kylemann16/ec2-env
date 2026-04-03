@@ -6,6 +6,10 @@ data aws_ssm_parameter linux_amd64 {
     name = "/aws/service/canonical/ubuntu/server/20.04/stable/current/amd64/hvm/ebs-gp2/ami-id"
 }
 
+data aws_ssm_parameter amzn_linux_amd64 {
+    name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+}
+
 data aws_ssm_parameter windows {
     name = "/aws/service/ami-windows-latest/Windows_Server-2019-English-Full-ECS_Optimized"
 }
@@ -15,7 +19,7 @@ variable platform {
     default = "linux/amd64"
     description = "Platform for image."
     validation {
-        condition = can(regex("^(windows|linux/arm64|linux/amd64)$", var.platform))
+        condition = can(regex("^(windows|amzn_linux/amd64|linux/arm64|linux/amd64)$", var.platform))
         error_message = "Available platform options: windows, linux/arm64, linux/amd64"
     }
 }
@@ -23,13 +27,15 @@ variable platform {
 locals {
     ami_id = "${
         var.platform == "linux/amd64" ? data.aws_ssm_parameter.linux_amd64.value :
+        ( var.platform == "amzn_linux/amd64" ? data.aws_ssm_parameter.amzn_linux_amd64.value :
         ( var.platform == "linux/arm64" ? data.aws_ssm_parameter.linux_arm64.value :
-        ( var.platform == "windows" ? jsondecode(data.aws_ssm_parameter.windows.value).image_id : ""))
+        ( var.platform == "windows" ? jsondecode(data.aws_ssm_parameter.windows.value).image_id : "")))
     }"
     userdata_path = "${
         var.platform == "linux/amd64" ? "${path.module}/scripts/userdata_linux_amd64.sh" :
         ( var.platform == "linux/arm64" ? "${path.module}/scripts/userdata_linux_arm64.sh" :
-        ( var.platform == "windows" ? "${path.module}/scripts/userdata_win.ps1" : ""))
+        ( var.platform == "amzn_linux/amd64" ? "${path.module}/scripts/userdata_amzn_linux_amd64.sh" :
+        ( var.platform == "windows" ? "${path.module}/scripts/userdata_win.ps1" : "")))
     }"
 }
 
@@ -120,6 +126,11 @@ resource aws_instance instance {
         http_endpoint="enabled"
         http_tokens="required"
         http_put_response_hop_limit = 2
+    }
+    ebs_block_device {
+        delete_on_termination = true
+        device_name = "/dev/sdb"
+        volume_size = 100
     }
 
 
