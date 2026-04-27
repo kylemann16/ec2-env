@@ -10,7 +10,7 @@ then
     workspace='default'
 fi
 
-terraform workspace select $workspace
+terraform workspace select -or-create $workspace
 if [[ $? -eq 1 ]]
 then
     terraform workspace new $workspace

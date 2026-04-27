@@ -12,7 +12,14 @@ then
     terraform workspace select default
 else
     terraform workspace select $workspace
+    if [[ $? -ne 0 ]]
+    then
+        echo "Workspace '$workspace' not found. Exiting."
+        exit 1
+    fi
 fi
+
+
 
 ##### select terraform variable file ######
 read -p "Variable file path? [None]: " var_file
